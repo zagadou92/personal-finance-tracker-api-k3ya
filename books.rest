@@ -1,0 +1,110 @@
+### Get all books - local
+GET http://localhost:5500/books HTTP/1.1
+Accept: application/json
+
+###
+
+### Get all books - render
+GET https://cse341contactsw1.onrender.com/books HTTP/1.1
+Accept: application/json
+
+###
+
+### Get a book by ID - local
+# Exemple avec le premier livre
+GET http://localhost:5500/books/691746bb33b969a855bd927d HTTP/1.1
+Accept: application/json
+
+###
+
+### Get a book by ID - render
+GET https://cse341contactsw1.onrender.com/books/691746bb33b969a855bd927d HTTP/1.1
+Accept: application/json
+
+###
+
+### Get a book by ISBN - local
+GET http://localhost:5500/books/isbn/9783161484100 HTTP/1.1
+Accept: application/json
+
+###
+
+### Get a book by ISBN - render
+GET https://cse341contactsw1.onrender.com/books/isbn/9783161484100 HTTP/1.1
+Accept: application/json
+
+###
+
+### Create a new book - local
+POST http://localhost:5500/books HTTP/1.1
+Content-Type: application/json
+
+{
+  "isbn": "9781234567890",
+  "title": "Nouveau Livre",
+  "author": "Auteur Exemple",
+  "publisher": "Éditeur Exemple",
+  "year": 2025,
+  "edition": "1ère édition",
+  "format": "Broché"
+}
+
+###
+
+### Create a new book - render
+POST https://cse341contactsw1.onrender.com/books HTTP/1.1
+Content-Type: application/json
+
+{
+  "isbn": "9781234567890",
+  "title": "Nouveau Livre",
+  "author": "Auteur Exemple",
+  "publisher": "Éditeur Exemple",
+  "year": 2025,
+  "edition": "1ère édition",
+  "format": "Broché"
+}
+
+###
+
+### Update a book (PUT) - local
+PUT http://localhost:5500/books/691746bb33b969a855bd927d HTTP/1.1
+Content-Type: application/json
+
+{
+  "isbn": "9783161484100",
+  "title": "Le Petit Prince - Edition mise à jour",
+  "author": "Antoine de Saint-Exupéry",
+  "publisher": "Éditions Gallimard",
+  "year": 1943,
+  "edition": "1ère édition révisée",
+  "format": "Broché"
+}
+
+###
+
+### Update a book (PUT) - render
+PUT https://cse341contactsw1.onrender.com/books/691746bb33b969a855bd927d HTTP/1.1
+Content-Type: application/json
+
+{
+  "isbn": "9783161484100",
+  "title": "Le Petit Prince - Edition mise à jour",
+  "author": "Antoine de Saint-Exupéry",
+  "publisher": "Éditions Gallimard",
+  "year": 1943,
+  "edition": "1ère édition révisée",
+  "format": "Broché"
+}
+
+###
+
+### Delete a book - local
+DELETE http://localhost:5500/books/691746bb33b969a855bd927d HTTP/1.1
+
+###
+
+### Delete a book - render
+DELETE https://cse341contactsw1.onrender.com/books/691746bb33b969a855bd927d HTTP/1.1
+
+###

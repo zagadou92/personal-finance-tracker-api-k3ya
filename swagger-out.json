@@ -1,0 +1,226 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Contacts API",
+    "version": "1.0.0",
+    "description": "Documentation de l'API CSE341 Contacts - Gestion des livres et lecteurs"
+  },
+  "servers": [
+    {
+      "url": "https://cse341contactsw1.onrender.com"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["Hello Readers"],
+        "summary": "Page d'accueil de l'API",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books": {
+      "get": {
+        "tags": ["Books"],
+        "summary": "Liste tous les livres",
+        "responses": {
+          "200": {
+            "description": "Liste renvoyée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Book"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Books"],
+        "summary": "Ajouter un livre",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Book"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Livre créé" },
+          "422": { "description": "Unprocessable Entity" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/books/{id}": {
+      "get": {
+        "tags": ["Books"],
+        "summary": "Récupérer un livre par ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Livre renvoyé avec succès" },
+          "404": { "description": "Livre non trouvé" }
+        }
+      },
+      "put": {
+        "tags": ["Books"],
+        "summary": "Mettre à jour un livre par ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/Book" } }
+          }
+        },
+        "responses": {
+          "204": { "description": "Livre mis à jour" },
+          "422": { "description": "Unprocessable Entity" },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "delete": {
+        "tags": ["Books"],
+        "summary": "Supprimer un livre par ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "204": { "description": "Livre supprimé" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/readers": {
+      "get": {
+        "tags": ["Readers"],
+        "summary": "Liste tous les lecteurs",
+        "responses": {
+          "200": {
+            "description": "Liste renvoyée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Reader" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Readers"],
+        "summary": "Ajouter un lecteur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/Reader" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Lecteur créé" },
+          "422": { "description": "Unprocessable Entity" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/readers/{id}": {
+      "get": {
+        "tags": ["Readers"],
+        "summary": "Récupérer un lecteur par ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Lecteur renvoyé avec succès" },
+          "404": { "description": "Lecteur non trouvé" }
+        }
+      },
+      "put": {
+        "tags": ["Readers"],
+        "summary": "Mettre à jour un lecteur par ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Reader" } } }
+        },
+        "responses": {
+          "204": { "description": "Lecteur mis à jour" },
+          "422": { "description": "Unprocessable Entity" },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "delete": {
+        "tags": ["Readers"],
+        "summary": "Supprimer un lecteur par ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "204": { "description": "Lecteur supprimé" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "properties": {
+          "isbn": { "type": "string", "example": "9783161484100" },
+          "title": { "type": "string", "example": "Le Petit Prince" },
+          "author": { "type": "string", "example": "Antoine de Saint-Exupéry" },
+          "publisher": { "type": "string", "example": "Éditions Gallimard" },
+          "year": { "type": "integer", "example": 1943 },
+          "edition": { "type": "string", "example": "1ère édition" },
+          "format": { "type": "string", "example": "Broché" }
+        },
+        "required": ["isbn", "title", "author"]
+      },
+      "Reader": {
+        "type": "object",
+        "properties": {
+          "firstname": { "type": "string", "example": "John" },
+          "lastname": { "type": "string", "example": "Doe" },
+          "email": { "type": "string", "example": "john.doe@gmail.com" },
+          "books": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["firstname", "lastname", "email"]
+      }
+    }
+  }
+}
