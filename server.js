@@ -13,7 +13,7 @@ import swaggerSpec from "./swagger.js";
 // Routes
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import accountRoutes from "./routes/accountRoutes.js";
+
 import transactionRoutes from "./routes/transactionRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
