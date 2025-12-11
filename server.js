@@ -25,7 +25,7 @@ const app = express();
 const PORT = process.env.PORT || 5500;
 
 // --------------------
-// Middleware
+// Middleware global
 // --------------------
 app.use(cors());
 app.use(express.json());
@@ -34,21 +34,20 @@ app.use(
     secret: process.env.SESSION_SECRET || "default_secret",
     resave: false,
     saveUninitialized: false,
+    cookie: { secure: false }, // Render utilise HTTP, pas HTTPS en dev
   })
 );
 app.use(passport.initialize());
 app.use(passport.session());
 
-// --------------------
-// Middleware Auth
-// --------------------
+// Middleware auth
 function ensureAuth(req, res, next) {
   if (req.isAuthenticated()) return next();
   res.status(401).json({ error: "Utilisateur non authentifié" });
 }
 
 // --------------------
-// Fonction principale async
+// Fonction principale
 // --------------------
 async function startServer() {
   let db;
@@ -60,7 +59,7 @@ async function startServer() {
     process.exit(1);
   }
 
-  // Middleware pour accéder à db et collections
+  // Middleware MongoDB pour req.db et collections
   app.use((req, res, next) => {
     req.db = db;
     req.collections = COLLECTIONS;
@@ -81,7 +80,7 @@ async function startServer() {
   });
 
   // --------------------
-  // Google OAuth Strategy
+  // Google OAuth
   // --------------------
   passport.use(
     new GoogleStrategy(
@@ -114,7 +113,7 @@ async function startServer() {
   );
 
   // --------------------
-  // GitHub OAuth Strategy
+  // GitHub OAuth
   // --------------------
   passport.use(
     new GitHubStrategy(
@@ -174,7 +173,7 @@ async function startServer() {
   app.get("/login-failure", (req, res) => res.status(401).json({ error: "Échec de l'authentification OAuth" }));
 
   // --------------------
-  // Routes API protégées
+  // Routes API
   // --------------------
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/users", ensureAuth, userRoutes);
@@ -192,7 +191,7 @@ async function startServer() {
   // --------------------
   // Start Server
   // --------------------
-  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 }
 
 // Lancer le serveur
