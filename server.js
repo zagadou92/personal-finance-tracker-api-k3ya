@@ -7,16 +7,19 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as GitHubStrategy } from "passport-github2";
-import { MongoClient } from "mongodb";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger.js";
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import accountRoutes from "./routes/accountRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
+
+// DB
+import { dbInit, COLLECTIONS } from "./db.js";
 
 const app = express();
 const PORT = process.env.PORT || 5500;
@@ -39,22 +42,19 @@ app.use(passport.session());
 // --------------------
 // MongoDB Connection
 // --------------------
-const client = new MongoClient(process.env.MONGO_URI);
 let db;
-async function connectDB() {
-  try {
-    await client.connect();
-    db = client.db("finance-tracker");
-    console.log("✅ MongoDB connected");
-  } catch (err) {
-    console.error("❌ MongoDB connection error:", err);
-  }
+try {
+  db = await dbInit();
+  console.log("✅ MongoDB initialized");
+} catch (err) {
+  console.error("❌ MongoDB connection failed:", err);
+  process.exit(1);
 }
-await connectDB();
 
-// Middleware pour accéder à db
+// Middleware pour accéder à db et collections
 app.use((req, res, next) => {
   req.db = db;
+  req.collections = COLLECTIONS; // USERS, ACCOUNTS, TRANSACTIONS, CATEGORIES
   next();
 });
 
@@ -64,7 +64,7 @@ app.use((req, res, next) => {
 passport.serializeUser((user, done) => done(null, user.email));
 passport.deserializeUser(async (email, done) => {
   try {
-    const user = await db.collection("users").findOne({ email });
+    const user = await db.collection(COLLECTIONS.USERS).findOne({ email });
     done(null, user);
   } catch (err) {
     done(err, null);
@@ -84,7 +84,7 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
-        let user = await db.collection("users").findOne({ email });
+        let user = await db.collection(COLLECTIONS.USERS).findOne({ email });
 
         if (!user) {
           user = {
@@ -94,7 +94,7 @@ passport.use(
             provider: "google",
             photo: profile.photos?.[0]?.value,
           };
-          await db.collection("users").insertOne(user);
+          await db.collection(COLLECTIONS.USERS).insertOne(user);
         }
         done(null, user);
       } catch (err) {
@@ -118,7 +118,7 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
-        let user = await db.collection("users").findOne({ email });
+        let user = await db.collection(COLLECTIONS.USERS).findOne({ email });
 
         if (!user) {
           user = {
@@ -128,7 +128,7 @@ passport.use(
             provider: "github",
             photo: profile.photos?.[0]?.value,
           };
-          await db.collection("users").insertOne(user);
+          await db.collection(COLLECTIONS.USERS).insertOne(user);
         }
         done(null, user);
       } catch (err) {
@@ -177,6 +177,7 @@ app.get("/login-failure", (req, res) => res.status(401).send("❌ Échec de l'au
 // --------------------
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", ensureAuth, userRoutes);
+app.use("/api/v1/accounts", ensureAuth, accountRoutes);
 app.use("/api/v1/transactions", ensureAuth, transactionRoutes);
 app.use("/api/v1/categories", ensureAuth, categoryRoutes);
 app.use("/api/v1/budgets", ensureAuth, budgetRoutes);
