@@ -1,10 +1,18 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 
-dotenv.config(); // Charger les variables d'environnement depuis .env
+dotenv.config();
 
-let _client = null; // Client MongoDB global
-let _db = null;     // Référence à la DB spécifique
+let _client = null;
+let _db = null;
+
+// Noms des collections
+const COLLECTIONS = {
+  USERS: "users",
+  ACCOUNTS: "accounts",
+  TRANSACTIONS: "transactions",
+  CATEGORIES: "categories",
+};
 
 /**
  * Initialise la connexion à MongoDB
@@ -16,21 +24,17 @@ export async function dbInit() {
   }
 
   const uri = process.env.MONGO_URI;
-
-  if (!uri) {
-    throw new Error("❌ MONGO_URI is not defined in .env");
-  }
+  if (!uri) throw new Error("❌ MONGO_URI is not defined in .env");
 
   try {
     console.log("🔄 Connecting to MongoDB...");
-
     _client = new MongoClient(uri);
     await _client.connect();
 
     // Vérifier que la connexion est active
     await _client.db().command({ ping: 1 });
 
-    const dbName = process.env.DB_NAME || "contactsdb";
+    const dbName = process.env.DB_NAME || "projectdb";
     _db = _client.db(dbName);
 
     console.log(`✅ Connected to MongoDB (DB: ${dbName})`);
@@ -70,3 +74,44 @@ export async function closeDb() {
     console.log("✅ MongoDB connection closed");
   }
 }
+
+/**
+ * Fonctions CRUD génériques pour une collection
+ */
+export async function findAll(collectionName) {
+  const db = getDb();
+  return db.collection(collectionName).find().toArray();
+}
+
+export async function findById(collectionName, id) {
+  const db = getDb();
+  if (!ObjectId.isValid(id)) throw new Error("❌ Invalid ID");
+  return db.collection(collectionName).findOne({ _id: new ObjectId(id) });
+}
+
+export async function insertOne(collectionName, data) {
+  const db = getDb();
+  const result = await db.collection(collectionName).insertOne(data);
+  return result.insertedId;
+}
+
+export async function updateById(collectionName, id, data) {
+  const db = getDb();
+  if (!ObjectId.isValid(id)) throw new Error("❌ Invalid ID");
+  const result = await db
+    .collection(collectionName)
+    .updateOne({ _id: new ObjectId(id) }, { $set: data });
+  return result.modifiedCount;
+}
+
+export async function deleteById(collectionName, id) {
+  const db = getDb();
+  if (!ObjectId.isValid(id)) throw new Error("❌ Invalid ID");
+  const result = await db
+    .collection(collectionName)
+    .deleteOne({ _id: new ObjectId(id) });
+  return result.deletedCount;
+}
+
+// Exporter les noms de collection pour éviter les erreurs de frappe
+export { COLLECTIONS };
